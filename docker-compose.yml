@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:13
+    container_name: lapin-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lapinsdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - lapin_data:/var/lib/postgresql/data
+    networks:
+      - lapin-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lapin-backend
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/lapinsdb"
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    networks:
+      - lapin-net
+
+volumes:
+  lapin_data:
+
+networks:
+  lapin-net:
+    driver: bridge
